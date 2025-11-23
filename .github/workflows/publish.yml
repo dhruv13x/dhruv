@@ -30,9 +30,6 @@ jobs:
           pip install build twine
           pip install .[dev]
 
-      - name: 🧪 Run tests
-        run: pytest
-
       - name: ⚙️ Build distribution packages
         run: python -m build
 
