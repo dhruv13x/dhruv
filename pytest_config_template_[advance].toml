@@ -1,0 +1,62 @@
+[tool.pytest.ini_options]
+# All projects follow src/ layout
+pythonpath = ["src"]
+
+# Standard test discovery
+testpaths = ["tests"]
+
+# Async support when needed
+asyncio_mode = "auto"
+
+# Global execution settings
+addopts = [
+  "-v",
+  "-ra",
+  "--strict-config",
+  "--strict-markers",
+  "--tb=short",
+  "--showlocals",
+  "--import-mode=importlib",
+
+  # Time & performance
+  "--timeout=30",
+  "--durations=10",
+
+  # Coverage targeting the real package
+  # ✅ REPLACE THIS ONLY
+  "--cov=src/<project-package>",
+
+  "--cov-report=term-missing:skip-covered",
+  "--cov-report=html",
+  "--cov-report=xml",
+  "--cov-fail-under=90",
+]
+
+log_cli = true
+log_cli_level = "INFO"
+
+# Standard markers available in ALL projects
+markers = [
+  "unit: fast tests, no external deps",
+  "integration: tests combining modules or I/O",
+  "e2e: full workflow tests, may require services",
+  "slow: takes > 1s",
+  "network: requires external network",
+]
+
+# Warnings hygiene
+filterwarnings = [
+  "ignore::DeprecationWarning",
+  "ignore::RuntimeWarning",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src/<project-package>"]
+parallel = true
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
+sort = "cover"
