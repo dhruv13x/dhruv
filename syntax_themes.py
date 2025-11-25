@@ -1,4 +1,23 @@
 # syntax_themes.py
+
+"""Standalone theme utility for Pygments-based syntax styling.
+
+Provides:
+ - Several static Style subclasses (dracula, one_dark, tokyo_night, ...)
+ - A random theme generator with deterministic-seed option
+ - A single public helper `get_syntax_theme(name: str)` that returns (StyleClass, background_hex)
+
+Usage:
+    from syntax_themes import get_syntax_theme
+    StyleClass, bg = get_syntax_theme("dracula")
+    StyleClass, bg = get_syntax_theme("random")         # ephemeral random
+    StyleClass, bg = get_syntax_theme("random:12345")   # deterministic by seed
+"""
+
+from __future__ import annotations
+import random
+import math
+from typing import Tuple, Dict
 from pygments.style import Style
 from pygments.token import (
     Token,
@@ -13,458 +32,13 @@ from pygments.token import (
     Text,
 )
 
-# ----------------------------
-# 1) Dracula-like (dark, slightly purple)
-# ----------------------------
-class DraculaLikeStyle(Style):
-    background_color = "#282a36"
-    default_style = "#f8f8f2"
-    styles = {
-        Comment: "italic #6272a4",
-        Keyword: "bold #ff79c6",
-        Keyword.Declaration: "bold #ff79c6",
-        Name: "#f8f8f2",
-        Name.Function: "#50fa7b",
-        Name.Builtin: "#8be9fd",
-        Name.Decorator: "#ff79c6",
-        Name.Class: "#8be9fd",
-        String: "#f1fa8c",
-        Number: "#bd93f9",
-        Operator: "#f8f8f2",
-        Literal: "#ffb86c",
-        Generic: "#9aa7c7",
-        Token.LineNumber: "#5c6370",
-        Token.LineNumber.Current: "bold #ff79c6",
-        Text: "#f8f8f2",
-    }
+from pygments.style import Style
+from pygments.token import Keyword, Name, Comment, String, Error, Text, \
+     Number, Operator, Generic, Whitespace, Punctuation, Other, Literal, Token
 
 # ----------------------------
-# 2) Monokai-like
-# ----------------------------
-class MonokaiLikeStyle(Style):
-    background_color = "#272822"
-    default_style = "#f8f8f2"
-    styles = {
-        Comment: "italic #75715e",
-        Keyword: "bold #f92672",
-        Keyword.Declaration: "bold #f92672",
-        Name: "#f8f8f2",
-        Name.Function: "#a6e22e",
-        Name.Builtin: "#66d9ef",
-        Name.Decorator: "#fd971f",
-        Name.Class: "#66d9ef",
-        String: "#e6db74",
-        Number: "#ae81ff",
-        Operator: "#f8f8f2",
-        Literal: "#fd971f",
-        Generic: "#b4b7b4",
-        Token.LineNumber: "#66615a",
-        Token.LineNumber.Current: "bold #f92672",
-        Text: "#f8f8f2",
-    }
-
-# ----------------------------
-# 3) One Dark-like
-# ----------------------------
-class OneDarkStyle(Style):
-    background_color = "#282c34"
-    default_style = "#abb2bf"
-    styles = {
-        Comment: "italic #5c6370",
-        Keyword: "bold #c678dd",
-        Keyword.Declaration: "bold #c678dd",
-        Name: "#abb2bf",
-        Name.Function: "#61afef",
-        Name.Builtin: "#e5c07b",
-        Name.Decorator: "#c678dd",
-        Name.Class: "#e5c07b",
-        String: "#98c379",
-        Number: "#56b6c2",
-        Operator: "#abb2bf",
-        Literal: "#d19a66",
-        Generic: "#9aa7b0",
-        Token.LineNumber: "#4b5263",
-        Token.LineNumber.Current: "bold #c678dd",
-        Text: "#abb2bf",
-    }
-
-# ----------------------------
-# 4) Solarized Light-like
-# ----------------------------
-class SolarizedLightStyle(Style):
-    background_color = "#fdf6e3"
-    default_style = "#657b83"
-    styles = {
-        Comment: "italic #93a1a1",
-        Keyword: "bold #859900",
-        Keyword.Declaration: "bold #859900",
-        Name: "#657b83",
-        Name.Function: "#268bd2",
-        Name.Builtin: "#b58900",
-        Name.Decorator: "#268bd2",
-        Name.Class: "#b58900",
-        String: "#2aa198",
-        Number: "#d33682",
-        Operator: "#657b83",
-        Literal: "#cb4b16",
-        Generic: "#586e75",
-        Token.LineNumber: "#586e75",
-        Token.LineNumber.Current: "bold #268bd2",
-        Text: "#657b83",
-    }
-
-# ----------------------------
-# 5) Solarized Dark-like
-# ----------------------------
-class SolarizedDarkStyle(Style):
-    background_color = "#002b36"
-    default_style = "#839496"
-    styles = {
-        Comment: "italic #586e75",
-        Keyword: "bold #b58900",
-        Keyword.Declaration: "bold #b58900",
-        Name: "#839496",
-        Name.Function: "#268bd2",
-        Name.Builtin: "#2aa198",
-        Name.Decorator: "#b58900",
-        Name.Class: "#2aa198",
-        String: "#859900",
-        Number: "#d33682",
-        Operator: "#839496",
-        Literal: "#cb4b16",
-        Generic: "#93a1a1",
-        Token.LineNumber: "#073642",
-        Token.LineNumber.Current: "bold #b58900",
-        Text: "#839496",
-    }
-
-# ----------------------------
-# 6) Pastel Light
-# ----------------------------
-class PastelLightStyle(Style):
-    background_color = "#fbfbff"
-    default_style = "#2e2e2e"
-    styles = {
-        Comment: "italic #9aa0a6",
-        Keyword: "bold #5b7de0",
-        Keyword.Declaration: "bold #5b7de0",
-        Name: "#2e2e2e",
-        Name.Function: "#8a63c9",
-        Name.Builtin: "#b66d2f",
-        Name.Decorator: "#8a63c9",
-        Name.Class: "#b66d2f",
-        String: "#2f9d71",
-        Number: "#3a6f78",
-        Operator: "#2e2e2e",
-        Literal: "#b07a3b",
-        Generic: "#7b7f8a",
-        Token.LineNumber: "#a0a6ad",
-        Token.LineNumber.Current: "bold #5b7de0",
-        Text: "#2e2e2e",
-    }
-
-# ----------------------------
-# 7) Muted Dim (minimal dark)
-# ----------------------------
-class MutedDimStyle(Style):
-    background_color = "#1e1e1e"
-    default_style = "#b0b0b0"
-    styles = {
-        Comment: "italic #6c6c6c",
-        Keyword: "bold #8b9ab3",
-        Keyword.Declaration: "bold #8b9ab3",
-        Name: "#b0b0b0",
-        Name.Function: "#a89ecf",
-        Name.Builtin: "#9d8074",
-        Name.Decorator: "#a89ecf",
-        Name.Class: "#9d8074",
-        String: "#7fae7f",
-        Number: "#8f9e9f",
-        Operator: "#5e5e5e",
-        Literal: "#9e8f6f",
-        Generic: "#9aa7b0",
-        Token.LineNumber: "#5a5a5a",
-        Token.LineNumber.Current: "bold #a89ecf",
-        Text: "#b0b0b0",
-    }
-
-# ----------------------------
-# 8) High Contrast (black bg, bright tokens)
-# ----------------------------
-class HighContrastStyle(Style):
-    background_color = "#000000"
-    default_style = "#ffffff"
-    styles = {
-        Comment: "italic #888888",
-        Keyword: "bold #00ffff",
-        Keyword.Declaration: "bold #00ffff",
-        Name: "#ffffff",
-        Name.Function: "#ff00ff",
-        Name.Builtin: "#ffff00",
-        Name.Decorator: "#00ffff",
-        Name.Class: "#ffff00",
-        String: "#00ff00",
-        Number: "#00ffff",
-        Operator: "#ffffff",
-        Literal: "#ff9900",
-        Generic: "#ffffff",
-        Token.LineNumber: "#777777",
-        Token.LineNumber.Current: "bold #00ffff",
-        Text: "#ffffff",
-    }
-
-# ----------------------------
-# 9) Gruvbox Dark
-# ----------------------------
-class GruvboxDarkStyle(Style):
-    background_color = "#1b1d1a"
-    default_style = "#ebdbb2"
-    styles = {
-        Comment: "italic #928374",
-        Keyword: "bold #fb4934",
-        Keyword.Declaration: "bold #fb4934",
-        Name: "#ebdbb2",
-        Name.Function: "#b8bb26",
-        Name.Builtin: "#8ec07c",
-        Name.Decorator: "#fb4934",
-        Name.Class: "#8ec07c",
-        String: "#b8bb26",
-        Number: "#d3869b",
-        Operator: "#ebdbb2",
-        Literal: "#fabd2f",
-        Generic: "#a89984",
-        Token.LineNumber: "#7c6f64",
-        Token.LineNumber.Current: "bold #fb4934",
-        Text: "#ebdbb2",
-    }
-
-# ----------------------------
-# 10) Gruvbox Light
-# ----------------------------
-class GruvboxLightStyle(Style):
-    background_color = "#fbf1c7"
-    default_style = "#3c3836"
-    styles = {
-        Comment: "italic #928374",
-        Keyword: "bold #9d0006",
-        Keyword.Declaration: "bold #9d0006",
-        Name: "#3c3836",
-        Name.Function: "#79740e",
-        Name.Builtin: "#7c6f64",
-        Name.Decorator: "#9d0006",
-        Name.Class: "#7c6f64",
-        String: "#79740e",
-        Number: "#b57614",
-        Operator: "#3c3836",
-        Literal: "#b57614",
-        Generic: "#7c6f64",
-        Token.LineNumber: "#8f6f52",
-        Token.LineNumber.Current: "bold #9d0006",
-        Text: "#3c3836",
-    }
-
-# ----------------------------
-# 11) Nord (cool blues)
-# ----------------------------
-class NordStyle(Style):
-    background_color = "#2e3440"
-    default_style = "#d8dee9"
-    styles = {
-        Comment: "italic #616e88",
-        Keyword: "bold #81a1c1",
-        Keyword.Declaration: "bold #81a1c1",
-        Name: "#d8dee9",
-        Name.Function: "#88c0d0",
-        Name.Builtin: "#8fbcbb",
-        Name.Decorator: "#81a1c1",
-        Name.Class: "#8fbcbb",
-        String: "#a3be8c",
-        Number: "#b48ead",
-        Operator: "#d8dee9",
-        Literal: "#ebcb8b",
-        Generic: "#94a3b8",
-        Token.LineNumber: "#3b4252",
-        Token.LineNumber.Current: "bold #81a1c1",
-        Text: "#d8dee9",
-    }
-
-# ----------------------------
-# 12) Ayu Dark
-# ----------------------------
-class AyuDarkStyle(Style):
-    background_color = "#0f1419"
-    default_style = "#d5d6db"
-    styles = {
-        Comment: "italic #6f747a",
-        Keyword: "bold #ffb454",
-        Keyword.Declaration: "bold #ffb454",
-        Name: "#d5d6db",
-        Name.Function: "#7ccfff",
-        Name.Builtin: "#ffd580",
-        Name.Decorator: "#ffb454",
-        Name.Class: "#ffd580",
-        String: "#b8f0a8",
-        Number: "#ffb454",
-        Operator: "#d5d6db",
-        Literal: "#ffb454",
-        Generic: "#b7bec6",
-        Token.LineNumber: "#3a3f45",
-        Token.LineNumber.Current: "bold #ffb454",
-        Text: "#d5d6db",
-    }
-
-# ----------------------------
-# 13) Ayu Light
-# ----------------------------
-class AyuLightStyle(Style):
-    background_color = "#f7f7f9"
-    default_style = "#3b3b3b"
-    styles = {
-        Comment: "italic #9aa0a6",
-        Keyword: "bold #f76d47",
-        Keyword.Declaration: "bold #f76d47",
-        Name: "#3b3b3b",
-        Name.Function: "#4a90e2",
-        Name.Builtin: "#ffb454",
-        Name.Decorator: "#f76d47",
-        Name.Class: "#ffb454",
-        String: "#18a058",
-        Number: "#b85c7d",
-        Operator: "#3b3b3b",
-        Literal: "#c18c3e",
-        Generic: "#6f6f6f",
-        Token.LineNumber: "#9b9b9b",
-        Token.LineNumber.Current: "bold #f76d47",
-        Text: "#3b3b3b",
-    }
-
-# ----------------------------
-# 14) Tomorrow Night
-# ----------------------------
-class TomorrowNightStyle(Style):
-    background_color = "#002b36"
-    default_style = "#c5c8c6"
-    styles = {
-        Comment: "italic #969896",
-        Keyword: "bold #f5871f",
-        Keyword.Declaration: "bold #f5871f",
-        Name: "#c5c8c6",
-        Name.Function: "#b294bb",
-        Name.Builtin: "#b5bd68",
-        Name.Decorator: "#f5871f",
-        Name.Class: "#b5bd68",
-        String: "#b5bd68",
-        Number: "#de935f",
-        Operator: "#c5c8c6",
-        Literal: "#cc6666",
-        Generic: "#9fb1c1",
-        Token.LineNumber: "#3a3f44",
-        Token.LineNumber.Current: "bold #f5871f",
-        Text: "#c5c8c6",
-    }
-
-# ----------------------------
-# 15) Zenburn (soft low-contrast)
-# ----------------------------
-class ZenburnStyle(Style):
-    background_color = "#3f3f3f"
-    default_style = "#dcdccc"
-    styles = {
-        Comment: "italic #7f9f7f",
-        Keyword: "bold #f0dfaf",
-        Keyword.Declaration: "bold #f0dfaf",
-        Name: "#dcdccc",
-        Name.Function: "#dfaf8f",
-        Name.Builtin: "#dfdfbf",
-        Name.Decorator: "#f0dfaf",
-        Name.Class: "#dfdfbf",
-        String: "#8fb28f",
-        Number: "#dfaf8f",
-        Operator: "#dcdccc",
-        Literal: "#e0cf9f",
-        Generic: "#bcbdb6",
-        Token.LineNumber: "#7a7a7a",
-        Token.LineNumber.Current: "bold #f0dfaf",
-        Text: "#dcdccc",
-    }
-
-# ----------------------------
-# 16) Material Dark (saturated, modern)
-# ----------------------------
-class MaterialDarkStyle(Style):
-    background_color = "#263238"
-    default_style = "#eceff1"
-    styles = {
-        Comment: "italic #90a4ae",
-        Keyword: "bold #ff4081",
-        Keyword.Declaration: "bold #ff4081",
-        Name: "#eceff1",
-        Name.Function: "#82b1ff",
-        Name.Builtin: "#c5e1a5",
-        Name.Decorator: "#ff4081",
-        Name.Class: "#c5e1a5",
-        String: "#c3e88d",
-        Number: "#ffab91",
-        Operator: "#eceff1",
-        Literal: "#ffd180",
-        Generic: "#b0bec5",
-        Token.LineNumber: "#4a5964",
-        Token.LineNumber.Current: "bold #ff4081",
-        Text: "#eceff1",
-    }
-
-# ----------------------------
-# 17) Oceanic Next
-# ----------------------------
-class OceanicNextStyle(Style):
-    background_color = "#1b2b34"
-    default_style = "#d8dee9"
-    styles = {
-        Comment: "italic #65737e",
-        Keyword: "bold #c594c5",
-        Keyword.Declaration: "bold #c594c5",
-        Name: "#d8dee9",
-        Name.Function: "#5fb3b3",
-        Name.Builtin: "#c0c5ce",
-        Name.Decorator: "#c594c5",
-        Name.Class: "#c0c5ce",
-        String: "#99c794",
-        Number: "#f99157",
-        Operator: "#d8dee9",
-        Literal: "#fac863",
-        Generic: "#89b5b5",
-        Token.LineNumber: "#2e3b44",
-        Token.LineNumber.Current: "bold #c594c5",
-        Text: "#d8dee9",
-    }
-
-# ----------------------------
-# 18) Tokyo Night
-# ----------------------------
-class TokyoNightStyle(Style):
-    background_color = "#1a1b27"
-    default_style = "#c0caf5"
-    styles = {
-        Comment: "italic #565f89",
-        Keyword: "bold #ff9e64",
-        Keyword.Declaration: "bold #ff9e64",
-        Name: "#c0caf5",
-        Name.Function: "#7aa2f7",
-        Name.Builtin: "#7dcfff",
-        Name.Decorator: "#ff9e64",
-        Name.Class: "#7dcfff",
-        String: "#9ece6a",
-        Number: "#d6786e",
-        Operator: "#c0caf5",
-        Literal: "#e0af68",
-        Generic: "#98c379",
-        Token.LineNumber: "#2c2f44",
-        Token.LineNumber.Current: "bold #7aa2f7",
-        Text: "#c0caf5",
-    }
-
-# ----------------------------
-# 19) Cyberpunk (neon eye-catching)
+# 1. CyberpunkStyle
+# Best match for established aesthetic preferences.
 # ----------------------------
 class CyberpunkStyle(Style):
     background_color = "#0b0f19"
@@ -489,7 +63,8 @@ class CyberpunkStyle(Style):
     }
 
 # ----------------------------
-# 20) EyeCandy Pastel Neon (bright, eye-catching)
+# 2. EyeCandyStyle
+# High saturation neon colors that pop in a terminal.
 # ----------------------------
 class EyeCandyStyle(Style):
     background_color = "#0f1020"
@@ -514,41 +89,306 @@ class EyeCandyStyle(Style):
     }
 
 # ----------------------------
-# THEME MAP
+# 3. TokyoNightStyle
+# Modern, professional deep-dark theme.
 # ----------------------------
-THEME_MAP = {
-    "dracula": (DraculaLikeStyle, "#282a36"),
-    "monokai": (MonokaiLikeStyle, "#272822"),
-    "one_dark": (OneDarkStyle, "#282c34"),
-    "solarized_light": (SolarizedLightStyle, "#fdf6e3"),
-    "solarized_dark": (SolarizedDarkStyle, "#002b36"),
-    "pastel_light": (PastelLightStyle, "#fbfbff"),
-    "muted_dim": (MutedDimStyle, "#1e1e1e"),
-    "high_contrast": (HighContrastStyle, "#000000"),
-    "gruvbox_dark": (GruvboxDarkStyle, "#1b1d1a"),
-    "gruvbox_light": (GruvboxLightStyle, "#fbf1c7"),
-    "nord": (NordStyle, "#2e3440"),
-    "ayu_dark": (AyuDarkStyle, "#0f1419"),
-    "ayu_light": (AyuLightStyle, "#f7f7f9"),
-    "tomorrow_night": (TomorrowNightStyle, "#002b36"),
-    "zenburn": (ZenburnStyle, "#3f3f3f"),
-    "material_dark": (MaterialDarkStyle, "#263238"),
-    "oceanic_next": (OceanicNextStyle, "#1b2b34"),
-    "tokyo_night": (TokyoNightStyle, "#1a1b27"),
-    "cyberpunk": (CyberpunkStyle, "#0b0f19"),
-    "eyecandy": (EyeCandyStyle, "#0f1020"),
+class TokyoNightStyle(Style):
+    background_color = "#1a1b27"
+    default_style = "#c0caf5"
+    styles = {
+        Comment: "italic #565f89",
+        Keyword: "bold #ff9e64",
+        Keyword.Declaration: "bold #ff9e64",
+        Name: "#c0caf5",
+        Name.Function: "#7aa2f7",
+        Name.Builtin: "#7dcfff",
+        Name.Decorator: "#ff9e64",
+        Name.Class: "#7dcfff",
+        String: "#9ece6a",
+        Number: "#d6786e",
+        Operator: "#c0caf5",
+        Literal: "#e0af68",
+        Generic: "#98c379",
+        Token.LineNumber: "#2c2f44",
+        Token.LineNumber.Current: "bold #7aa2f7",
+        Text: "#c0caf5",
+    }
+
+# ----------------------------
+# 4. DraculaLikeStyle
+# High contrast and classic dark theme reliability.
+# ----------------------------
+class DraculaLikeStyle(Style):
+    background_color = "#282a36"
+    default_style = "#f8f8f2"
+    styles = {
+        Comment: "italic #6272a4",
+        Keyword: "bold #ff79c6",
+        Keyword.Declaration: "bold #ff79c6",
+        Name: "#f8f8f2",
+        Name.Function: "#50fa7b",
+        Name.Builtin: "#8be9fd",
+        Name.Decorator: "#ff79c6",
+        Name.Class: "#8be9fd",
+        String: "#f1fa8c",
+        Number: "#bd93f9",
+        Operator: "#f8f8f2",
+        Literal: "#ffb86c",
+        Generic: "#9aa7c7",
+        Token.LineNumber: "#5c6370",
+        Token.LineNumber.Current: "bold #ff79c6",
+        Text: "#f8f8f2",
+    }
+
+# ----------------------------
+# 5. OneDarkStyle
+# Balanced atom-like dark theme.
+# ----------------------------
+class OneDarkStyle(Style):
+    background_color = "#282c34"
+    default_style = "#abb2bf"
+    styles = {
+        Comment: "italic #5c6370",
+        Keyword: "bold #c678dd",
+        Keyword.Declaration: "bold #c678dd",
+        Name: "#abb2bf",
+        Name.Function: "#61afef",
+        Name.Builtin: "#e5c07b",
+        Name.Decorator: "#c678dd",
+        Name.Class: "#e5c07b",
+        String: "#98c379",
+        Number: "#56b6c2",
+        Operator: "#abb2bf",
+        Literal: "#d19a66",
+        Generic: "#9aa7b0",
+        Token.LineNumber: "#4b5263",
+        Token.LineNumber.Current: "bold #c678dd",
+        Text: "#abb2bf",
+    }
+
+# ----------------------------
+# 6. NordStyle
+# Arctic, north-bluish clean theme.
+# ----------------------------
+class NordStyle(Style):
+    background_color = "#2e3440"
+    default_style = "#d8dee9"
+    styles = {
+        Comment: "italic #616e88",
+        Keyword: "bold #81a1c1",
+        Keyword.Declaration: "bold #81a1c1",
+        Name: "#d8dee9",
+        Name.Function: "#88c0d0",
+        Name.Builtin: "#8fbcbb",
+        Name.Decorator: "#81a1c1",
+        Name.Class: "#8fbcbb",
+        String: "#a3be8c",
+        Number: "#b48ead",
+        Operator: "#d8dee9",
+        Literal: "#ebcb8b",
+        Generic: "#94a3b8",
+        Token.LineNumber: "#3b4252",
+        Token.LineNumber.Current: "bold #81a1c1",
+        Text: "#d8dee9",
+    }
+
+
+# ----------------------------
+# THEME MAP (name -> (StyleClass, bg_hex))
+# ----------------------------
+THEME_MAP: Dict[str, Tuple[type, str]] = {
+    "cyberpunk": (CyberpunkStyle, CyberpunkStyle.background_color),
+    "eyecandy": (EyeCandyStyle, EyeCandyStyle.background_color),
+    "tokyo_night": (TokyoNightStyle, TokyoNightStyle.background_color),
+    "one_dark": (OneDarkStyle, OneDarkStyle.background_color),
+    "dracula": (DraculaLikeStyle, DraculaLikeStyle.background_color),
+    "nord": (NordStyle, NordStyle.background_color),
 }
 
+# ---------- Random theme generator (kept from original) ----------
+_MIN_CONTRAST = 4.5
+_RANDOM_THEME_CACHE: Dict[str, Tuple[type, str]] = {}
 
+def clamp01(x: float) -> float:
+    return max(0.0, min(1.0, x))
+
+def hsl_to_rgb(h: float, s: float, l: float) -> Tuple[int, int, int]:
+    c = (1 - abs(2 * l - 1)) * s
+    hp = h / 60.0
+    x = c * (1 - abs((hp % 2) - 1))
+    if 0 <= hp < 1:
+        r1, g1, b1 = c, x, 0
+    elif 1 <= hp < 2:
+        r1, g1, b1 = x, c, 0
+    elif 2 <= hp < 3:
+        r1, g1, b1 = 0, c, x
+    elif 3 <= hp < 4:
+        r1, g1, b1 = 0, x, c
+    elif 4 <= hp < 5:
+        r1, g1, b1 = x, 0, c
+    else:
+        r1, g1, b1 = c, 0, x
+    m = l - c/2
+    r, g, b = r1 + m, g1 + m, b1 + m
+    return (int(round(255*clamp01(r))),
+            int(round(255*clamp01(g))),
+            int(round(255*clamp01(b))))
+
+def rgb_to_hex(rgb: Tuple[int,int,int]) -> str:
+    return "#{:02x}{:02x}{:02x}".format(*rgb)
+
+def hsl_to_hex(h: float, s: float, l: float) -> str:
+    return rgb_to_hex(hsl_to_rgb(h % 360, clamp01(s), clamp01(l)))
+
+def relative_luminance(hex_color: str) -> float:
+    r = int(hex_color[1:3], 16) / 255.0
+    g = int(hex_color[3:5], 16) / 255.0
+    b = int(hex_color[5:7], 16) / 255.0
+    def lin(c):
+        return c/12.92 if c <= 0.04045 else ((c+0.055)/1.055) ** 2.4
+    return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+
+def contrast_ratio(hex1: str, hex2: str) -> float:
+    L1 = relative_luminance(hex1)
+    L2 = relative_luminance(hex2)
+    lighter, darker = max(L1, L2), min(L1, L2)
+    return (lighter + 0.05) / (darker + 0.05)
+
+def _choose_harmony_hues(rand: random.Random, base_h: float) -> Tuple[float, float, float]:
+    mode = rand.choice(["analogous", "triadic", "complementary", "split"])
+    if mode == "analogous":
+        return (base_h,
+                (base_h + rand.uniform(15, 45)) % 360,
+                (base_h - rand.uniform(15, 45)) % 360)
+    if mode == "triadic":
+        return (base_h, (base_h + 120) % 360, (base_h + 240) % 360)
+    if mode == "complementary":
+        return (base_h, (base_h + 180) % 360, (base_h + rand.uniform(10, 40)) % 360)
+    return (base_h, (base_h + 150) % 360, (base_h - 150) % 360)
+
+def _ensure_contrast(fg_hex: str, bg_hex: str, min_ratio: float = _MIN_CONTRAST) -> str:
+    if contrast_ratio(fg_hex, bg_hex) >= min_ratio:
+        return fg_hex
+    def mix(hexc, with_white: bool, amount: float) -> str:
+        r1 = int(hexc[1:3],16); g1 = int(hexc[3:5],16); b1 = int(hexc[5:7],16)
+        if with_white:
+            r2,g2,b2 = 255,255,255
+        else:
+            r2,g2,b2 = 0,0,0
+        r = int(round(r1*(1-amount) + r2*amount))
+        g = int(round(g1*(1-amount) + g2*amount))
+        b = int(round(b1*(1-amount) + b2*amount))
+        return "#{:02x}{:02x}{:02x}".format(r,g,b)
+    for amt in [i/20.0 for i in range(1,20)]:
+        c1 = mix(fg_hex, True, amt)
+        if contrast_ratio(c1, bg_hex) >= min_ratio:
+            return c1
+        c2 = mix(fg_hex, False, amt)
+        if contrast_ratio(c2, bg_hex) >= min_ratio:
+            return c2
+    return fg_hex
+
+def generate_random_theme(seed: int = None, prefer_dark: bool = True) -> Tuple[type, str]:
+    rand = random.Random(seed)
+    is_dark = rand.random() < (0.85 if prefer_dark else 0.15)
+    bg_hue = rand.uniform(0, 360)
+    if is_dark:
+        bg_light = rand.uniform(0.06, 0.18)
+        text_light = rand.uniform(0.82, 0.98)
+    else:
+        bg_light = rand.uniform(0.9, 0.98)
+        text_light = rand.uniform(0.06, 0.18)
+    bg_sat = rand.uniform(0.02, 0.12)
+    bg_hex = hsl_to_hex(bg_hue, bg_sat, bg_light)
+    fg_hex = hsl_to_hex((bg_hue + 180) % 360, 0.0, text_light)
+
+    primary_hue = rand.uniform(0, 360)
+    hues = _choose_harmony_hues(rand, primary_hue)
+
+    def role_color(hue, sat_range=(0.45,0.9), light_range=(0.45,0.7)):
+        sat = rand.uniform(*sat_range)
+        light = rand.uniform(*light_range) if is_dark else rand.uniform(0.25, 0.55)
+        raw = hsl_to_hex(hue, sat, light)
+        safe = _ensure_contrast(raw, bg_hex, _MIN_CONTRAST)
+        return safe
+
+    color_comment = role_color(hues[2], sat_range=(0.2,0.45), light_range=(0.45,0.6))
+    color_keyword = role_color(hues[0], sat_range=(0.55,0.95), light_range=(0.45,0.7))
+    color_name = role_color(hues[1], sat_range=(0.45,0.9), light_range=(0.45,0.7))
+    color_func = role_color(hues[0], sat_range=(0.45,0.9), light_range=(0.35,0.6))
+    color_builtin = role_color(hues[1], sat_range=(0.35,0.75), light_range=(0.45,0.7))
+    color_string = role_color((hues[0]+60) % 360, sat_range=(0.45,0.9), light_range=(0.4,0.7))
+    color_number = role_color((hues[1]+120) % 360, sat_range=(0.45,0.9), light_range=(0.45,0.7))
+    color_literal = role_color((hues[2]+90) % 360, sat_range=(0.45,0.9), light_range=(0.45,0.7))
+    color_generic = role_color((primary_hue+200) % 360, sat_range=(0.15,0.5), light_range=(0.4,0.7))
+
+    line_number = _ensure_contrast(hsl_to_hex(bg_hue, 0.05, clamp01(bg_light + (0.12 if is_dark else -0.12))), bg_hex, 1.5)
+    line_number_current = color_keyword
+
+    styles = {
+        Comment: f"italic {color_comment}",
+        Keyword: f"bold {color_keyword}",
+        Keyword.Declaration: f"bold {color_keyword}",
+        Name: fg_hex,
+        Name.Function: color_func,
+        Name.Builtin: color_builtin,
+        Name.Decorator: color_keyword,
+        Name.Class: color_builtin,
+        String: color_string,
+        Number: color_number,
+        Operator: fg_hex,
+        Literal: color_literal,
+        Generic: color_generic,
+        Token.LineNumber: line_number,
+        Token.LineNumber.Current: f"bold {line_number_current}",
+        Text: fg_hex,
+    }
+
+    cls_name = f"RandomTheme_{seed or rand.randint(0,10**9)}"
+    attrs = {"background_color": bg_hex, "default_style": fg_hex, "styles": styles}
+    StyleClass = type(cls_name, (Style,), attrs)
+    return StyleClass, bg_hex
+
+# ---------- Public helper ----------
 def get_syntax_theme(name: str):
     """
-    Return (PygmentsStyleClass, background_hex) for the given short name.
-    Defaults to 'muted_dim' if name not found.
+    Returns (PygmentsStyleClass, background_hex).
 
-    Valid keys: dracula, monokai, one_dark, solarized_light, solarized_dark,
-                pastel_light, muted_dim, high_contrast, gruvbox_dark,
-                gruvbox_light, nord, ayu_dark, ayu_light, tomorrow_night,
-                zenburn, material_dark, oceanic_next, tokyo_night,
-                cyberpunk, eyecandy
+    Behaviour:
+      - "random" -> new ephemeral random theme
+      - "random:<seed>" or "r:<seed>" -> deterministic by seed (accepts int or string)
+      - otherwise: look up THEME_MAP (case-insensitive)
+      - default fallback: OneDarkStyle
     """
-    return THEME_MAP.get(name, THEME_MAP["muted_dim"])
+    if not name:
+        return THEME_MAP["one_dark"]
+
+    lname = name.lower()
+    if lname == "random":
+        cls, bg = generate_random_theme(seed=None, prefer_dark=True)
+        return cls, bg
+
+    for prefix in ("random:", "rand:", "r:"):
+        if lname.startswith(prefix):
+            seed_part = name.split(":", 1)[1]
+            try:
+                seed_val = int(seed_part)
+            except Exception:
+                seed_val = abs(hash(seed_part)) % (1 << 30)
+            cache_key = f"random:{seed_val}"
+            if cache_key in _RANDOM_THEME_CACHE:
+                return _RANDOM_THEME_CACHE[cache_key]
+            cls, bg = generate_random_theme(seed=seed_val, prefer_dark=True)
+            _RANDOM_THEME_CACHE[cache_key] = (cls, bg)
+            return cls, bg
+
+    # exact / case-insensitive lookup
+    if name in THEME_MAP:
+        return THEME_MAP[name]
+    for k in THEME_MAP:
+        if k.lower() == name.lower():
+            return THEME_MAP[k]
+
+    # fallback
+    return THEME_MAP["one_dark"]
+  
