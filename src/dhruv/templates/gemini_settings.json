@@ -1,0 +1,41 @@
+{
+  "security": {
+    "auth": {
+      "selectedType": "oauth-personal"
+    }
+  },
+  "general": {
+    "previewFeatures": true,
+    "disableAutoUpdate": true,
+    "enablePromptCompletion": true
+  },
+  "ui": {
+    "showStatusInTitle": true,
+    "footer": {
+      "hideSandboxStatus": true
+    },
+    "showMemoryUsage": true,
+    "showCitations": true,
+    "showModelInfoInChat": true,
+    "useAlternateBuffer": true
+  },
+  "tools": {
+    "shell": {
+      "showColor": true
+    },
+    "truncateToolOutputLines": 10000,
+    "enableMessageBusIntegration": true
+  },
+  "ide": {
+    "enabled": true
+  },
+  "model": {
+    "compressionThreshold": 0.7
+  },
+  "experimental": {
+    "codebaseInvestigatorSettings": {
+      "maxNumTurns": 100
+    },
+    "useModelRouter": false
+  }
+}
