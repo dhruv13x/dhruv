@@ -32,13 +32,12 @@
 
 </div>
 
-
 # dhruv 🐍
 
-A foundational Python package designed for simplicity and extensibility.
+A foundational Python package for AI-assisted development, designed for simplicity and extensibility.
 
 ## About
-This project serves as a lightweight, "batteries-included" starting point for new Python packages. It demonstrates a clean project structure and basic packaging, making it easy to build upon.
+Dhruv is more than just a template; it's a **"batteries-included" foundation** for building robust Python tools. It comes pre-packaged with an **AI Developer Handbook**—a set of system prompts used to standardize documentation, roadmapping, testing, and refactoring—along with ready-to-use configuration templates.
 
 ---
 
@@ -58,15 +57,8 @@ pip install -e .
 ```
 
 ### Usage Example
-Here's how to use the core function of this package:
-```python
-from dhruv.main import hello
+Verify the installation with the built-in CLI:
 
-print(hello())
-# Expected Output: "Hello from Dhruv!"
-```
-
-Or via the command line:
 ```bash
 dhruv hello
 # Expected Output: "Hello from Dhruv!"
@@ -75,31 +67,40 @@ dhruv hello
 ---
 
 ## ✨ Key Features
-- **Zero Dependencies**: (Deprecated: Now includes `typer` and `rich` for CLI).
-- **Easy to Install**: Get up and running with a single command.
-- **Extensible**: A solid foundation for building more complex applications.
-- **Command-Line Interface**: Built-in CLI for easy interaction.
+- **AI Developer Handbook**: Includes a comprehensive set of system prompts (`src/dhruv/prompts/`) to guide AI agents through Documentation, Roadmapping, Testing, and Refactoring.
+- **Batteries-Included Templates**: Pre-configured templates for `pytest` and project settings (`src/dhruv/templates/`).
+- **Modern CLI Foundation**: Built with **Typer** and **Rich** for a robust and beautiful command-line interface.
+- **Clean Architecture**: Standardized `src` layout ready for expansion.
 
 ---
 
 ## ⚙️ Configuration & Advanced Usage
-Currently, the package requires no special configuration or environment variables.
+
+### CLI Reference
+
+| Command | Description |
+| :--- | :--- |
+| `dhruv hello` | Prints a hello message to verify the installation. |
+
+### Accessing Resources
+The package includes valuable resources for development:
+- **Prompts**: Located in `src/dhruv/prompts/`. Use these to guide your AI coding assistant.
+- **Templates**: Located in `src/dhruv/templates/`. Copy these to your project root for instant configuration.
 
 ---
 
 ## 🏗️ Architecture
-The project follows a standard `src` layout:
+The project follows a modular `src` layout:
+
+```text
+src/
+└── dhruv/
+    ├── prompts/    # 📘 AI Developer Handbook & System Prompts
+    ├── templates/  # 🛠️ Configuration Templates (pytest, settings)
+    ├── utils/      # 🔧 Utility modules (banners, themes)
+    ├── cli.py      # 🚀 CLI entry point (Typer)
+    └── main.py     # 🧠 Core logic
 ```
-.
-├── src
-│   └── dhruv
-│       ├── __init__.py
-│       ├── main.py
-│       └── cli.py
-├── tests
-└── pyproject.toml
-```
-The core logic resides in `src/dhruv/main.py`, which is the primary entry point for the package's functionality. The CLI is handled by `src/dhruv/cli.py`.
 
 ---
 
@@ -107,6 +108,7 @@ The core logic resides in `src/dhruv/main.py`, which is the primary entry point 
 - [x] Initial Release
 - [x] Add more utility functions
 - [x] Implement a command-line interface
+- [ ] Expose prompts and templates via CLI (e.g., `dhruv init`)
 
 ---
 
