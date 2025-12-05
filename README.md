@@ -66,12 +66,19 @@ print(hello())
 # Expected Output: "Hello from Dhruv!"
 ```
 
+Or via the command line:
+```bash
+dhruv hello
+# Expected Output: "Hello from Dhruv!"
+```
+
 ---
 
 ## ✨ Key Features
-- **Zero Dependencies**: No external packages required.
+- **Zero Dependencies**: (Deprecated: Now includes `typer` and `rich` for CLI).
 - **Easy to Install**: Get up and running with a single command.
 - **Extensible**: A solid foundation for building more complex applications.
+- **Command-Line Interface**: Built-in CLI for easy interaction.
 
 ---
 
@@ -87,18 +94,19 @@ The project follows a standard `src` layout:
 ├── src
 │   └── dhruv
 │       ├── __init__.py
-│       └── main.py
+│       ├── main.py
+│       └── cli.py
 ├── tests
 └── pyproject.toml
 ```
-The core logic resides in `src/dhruv/main.py`, which is the primary entry point for the package's functionality.
+The core logic resides in `src/dhruv/main.py`, which is the primary entry point for the package's functionality. The CLI is handled by `src/dhruv/cli.py`.
 
 ---
 
 ## 🗺️ Roadmap
 - [x] Initial Release
-- [ ] Add more utility functions
-- [ ] Implement a command-line interface
+- [x] Add more utility functions
+- [x] Implement a command-line interface
 
 ---
 
