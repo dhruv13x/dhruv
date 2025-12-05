@@ -10,7 +10,13 @@ authors = [
   { name = "dhruv13x" }
 ]
 
-dependencies = []
+dependencies = [
+    "typer",
+    "rich"
+]
+
+[project.scripts]
+dhruv = "dhruv.cli:app"
 
 [project.urls]
 Homepage = "https://github.com/dhruv13x/dhruv"
