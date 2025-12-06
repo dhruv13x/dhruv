@@ -47,3 +47,4 @@ You are operating inside a Python repository. You own the `tests/` directory.
 1.  **Check Config**: Read `pyproject.toml` / `pytest.ini`.
 2.  **Scan Tests**: List existing test files.
 3.  **Plan**: Propose `conftest.py` updates or new test files.
+
