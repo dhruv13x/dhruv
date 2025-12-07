@@ -1,97 +1,82 @@
-<div align="center">
-  <img src="https://raw.githubusercontent.com/dhruv13x/dhruv/main/dhruv_logo.png" alt="dhruv logo" width="200"/>
-</div>
+# dhruv 🐍
+
+> **A foundational Python package for AI-assisted development, featuring an AI Developer Handbook and batteries-included templates.**
 
 <div align="center">
 
-<!-- Package Info -->
 [![PyPI version](https://img.shields.io/pypi/v/dhruv.svg)](https://pypi.org/project/dhruv/)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
 ![Wheel](https://img.shields.io/pypi/wheel/dhruv.svg)
-[![Release](https://img.shields.io/badge/release-PyPI-blue)](https://pypi.org/project/dhruv/)
-
-<!-- Build & Quality -->
 [![Build status](https://github.com/dhruv13x/dhruv/actions/workflows/publish.yml/badge.svg)](https://github.com/dhruv13x/dhruv/actions/workflows/publish.yml)
 [![Codecov](https://codecov.io/gh/dhruv13x/dhruv/graph/badge.svg)](https://codecov.io/gh/dhruv13x/dhruv)
-[![Test Coverage](https://img.shields.io/badge/coverage-90%25%2B-brightgreen.svg)](https://github.com/dhruv13x/dhruv/actions/workflows/test.yml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Ruff](https://img.shields.io/badge/linting-ruff-yellow.svg)](https://github.com/astral-sh/ruff)
-![Security](https://img.shields.io/badge/security-CodeQL-blue.svg)
-
-<!-- Usage -->
-![Downloads](https://img.shields.io/pypi/dm/dhruv.svg)
-[![PyPI Downloads](https://img.shields.io/pypi/dm/dhruv.svg)](https://pypistats.org/packages/dhruv)
-![OS](https://img.shields.io/badge/os-Linux%20%7C%20macOS%20%7C%20Windows-blue.svg)
-[![Python Versions](https://img.shields.io/pypi/pyversions/dhruv.svg)](https://pypi.org/project/dhruv/)
-
-<!-- License -->
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-<!-- Docs -->
-[![Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://your-docs-link)
+![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 
 </div>
 
-# dhruv 🐍
-
-A foundational Python package for AI-assisted development, designed for simplicity and extensibility.
-
-## About
-Dhruv is more than just a template; it's a **"batteries-included" foundation** for building robust Python tools. It comes pre-packaged with an **AI Developer Handbook**—a set of system prompts used to standardize documentation, roadmapping, testing, and refactoring—along with ready-to-use configuration templates.
-
 ---
 
-## 🚀 Quick Start
+## ⚡ Quick Start
 
 ### Prerequisites
-- Python 3.8 or higher
+*   Python 3.8+
+*   pip
 
 ### Installation
-For a straightforward installation, run the following command in the root directory:
 ```bash
 pip install .
 ```
-For developers who wish to modify the source code, install it in editable mode:
+*Or for development:*
 ```bash
 pip install -e .
 ```
 
-### Usage Example
-Verify the installation with the built-in CLI:
-
+### Run
+Verify the installation immediately:
 ```bash
 dhruv hello
-# Expected Output: "Hello from Dhruv!"
+```
+
+### Demo
+Use the core logic in your own scripts:
+```python
+from dhruv.main import hello
+
+# Access the core functionality directly
+print(hello())
+# Output: "Hello from Dhruv!"
 ```
 
 ---
 
-## ✨ Key Features
-- **AI Developer Handbook**: Includes a comprehensive set of system prompts (`src/dhruv/prompts/`) to guide AI agents through Documentation, Roadmapping, Testing, and Refactoring.
-- **Batteries-Included Templates**: Pre-configured templates for `pytest` and project settings (`src/dhruv/templates/`).
-- **Modern CLI Foundation**: Built with **Typer** and **Rich** for a robust and beautiful command-line interface.
-- **Clean Architecture**: Standardized `src` layout ready for expansion.
+## ✨ Features
+
+*   **🧠 AI Developer Handbook**: A comprehensive set of standardized system prompts (`src/dhruv/prompts/`) to guide AI agents through Documentation, Roadmapping, Testing, and Refactoring.
+*   **🚀 Modern CLI Foundation**: Built with **Typer** and **Rich** for a robust, beautiful, and self-documenting command-line interface.
+*   **📦 Batteries-Included Templates**: Pre-configured templates for `pytest`, project settings, and more, located in `src/dhruv/templates/`.
+*   **🏗️ Clean Architecture**: Follows a strict `src` layout with modular design, ensuring scalability and maintainability.
+*   **🎨 Visual Utilities**: Includes banner generation and syntax highlighting themes for a polished user experience.
 
 ---
 
-## ⚙️ Configuration & Advanced Usage
+## 🛠️ Configuration
 
-### CLI Reference
+### CLI Arguments
+The `dhruv` CLI is the primary interface.
 
-| Command | Description |
-| :--- | :--- |
-| `dhruv hello` | Prints a hello message to verify the installation. |
+| Command | Argument | Description |
+| :--- | :--- | :--- |
+| `dhruv` | `hello` | Prints a welcome message to verify installation. |
+| `dhruv` | `--help` | Show the help message and exit. |
 
-### Accessing Resources
-The package includes valuable resources for development:
-- **Prompts**: Located in `src/dhruv/prompts/`. Use these to guide your AI coding assistant.
-- **Templates**: Located in `src/dhruv/templates/`. Copy these to your project root for instant configuration.
+*Note: No environment variables are currently required for core operation.*
 
 ---
 
 ## 🏗️ Architecture
-The project follows a modular `src` layout:
 
+### Directory Tree
 ```text
 src/
 └── dhruv/
@@ -102,17 +87,47 @@ src/
     └── main.py     # 🧠 Core logic
 ```
 
+### High-Level Flow
+1.  **Entry Point**: `dhruv` command triggers `src/dhruv/cli.py`.
+2.  **Routing**: `typer` routes commands (e.g., `hello`) to their respective functions.
+3.  **Core Logic**: Commands invoke logic in `src/dhruv/main.py` or access resources in `prompts/` and `templates/`.
+4.  **Utilities**: `src/dhruv/utils/` provides shared functionality like banner rendering and styling.
+
+---
+
+## 🐞 Troubleshooting
+
+| Issue | Possible Cause | Solution |
+| :--- | :--- | :--- |
+| `command not found: dhruv` | PATH issue or not installed. | Ensure `pip install .` was successful and your Python scripts folder is in your PATH. |
+| `ModuleNotFoundError` | Virtual environment mismatch. | Activate the correct venv where `dhruv` was installed. |
+
+### Debug Mode
+If you encounter unexpected behavior, check your Python version and environment details:
+```bash
+python --version
+pip show dhruv
+```
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+### Dev Setup
+1.  Clone the repository.
+2.  Install package in editable mode: `pip install -e .`
+3.  Install test dependencies: `pip install pytest pytest-cov`
+4.  Run tests: `pytest`
+
 ---
 
 ## 🗺️ Roadmap
-- [x] Initial Release
-- [x] Add more utility functions
-- [x] Implement a command-line interface
-- [ ] Expose prompts and templates via CLI (e.g., `dhruv init`)
 
----
-
-## 🤝 Contributing & License
-Contributions are welcome! Please feel free to submit a pull request.
-
-This project is licensed under the MIT License. See the `pyproject.toml` file for details.
+*   [x] Initial Release & Core Structure
+*   [x] CLI Implementation (`typer`)
+*   [x] AI Developer Handbook (Prompts)
+*   [ ] **Interactive Init**: `dhruv init` to scaffold new projects.
+*   [ ] **Prompt Management**: CLI commands to list and display prompts.
+*   [ ] **Template Injection**: Automate copying templates to project root.
